@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+</head>
+<body>
+
+<h2>Create Event</h2>
+
+<input type="text" id="eventId" placeholder="Enter Event ID">
+<button onclick="generateQR()">Generate QR</button>
+
+<div id="qr"></div>
+
+<script>
+function generateQR() {
+  const eventId = document.getElementById("eventId").value;
+  const url = "https://YOUR_NETLIFY_URL/register.html?event=" + eventId;
+
+  document.getElementById("qr").innerHTML =
+    "<img src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + url + "'>";
+}
+</script>
+
+</body>
+</html>

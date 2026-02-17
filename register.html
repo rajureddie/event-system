@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Event Registration</title>
+</head>
+<body>
+
+<h2>Register for Event</h2>
+
+<input type="text" id="name" placeholder="Enter Name"><br><br>
+<input type="text" id="phone" placeholder="Enter Phone"><br><br>
+<button onclick="submitForm()">Submit</button>
+
+<p id="message"></p>
+
+<script>
+const API_URL = "YOUR_GOOGLE_SCRIPT_WEBAPP_URL";
+
+function getEventId() {
+  const params = new URLSearchParams(window.location.search);
+  return params.get("event");
+}
+
+function generateCoupon(eventId) {
+  return eventId + "-" + Math.floor(1000 + Math.random() * 9000);
+}
+
+function submitForm() {
+  const name = document.getElementById("name").value;
+  const phone = document.getElementById("phone").value;
+  const eventId = getEventId();
+  const coupon = generateCoupon(eventId);
+
+  fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({ eventId, name, phone, coupon })
+  })
+  .then(res => res.json())
+  .then(data => {
+    document.getElementById("message").innerHTML =
+      "Registration Successful! Your Coupon: <b>" + coupon + "</b>";
+  });
+}
+</script>
+
+</body>
+</html>

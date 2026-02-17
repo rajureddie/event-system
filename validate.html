@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Validate Coupon</title>
+</head>
+<body>
+
+<h2>Validate Coupon</h2>
+
+<input type="text" id="coupon" placeholder="Enter Coupon Code">
+<button onclick="validate()">Check</button>
+
+<p id="result"></p>
+
+<script>
+const API_URL = "YOUR_GOOGLE_SCRIPT_WEBAPP_URL";
+
+function validate() {
+  const coupon = document.getElementById("coupon").value;
+
+  fetch(API_URL + "?coupon=" + coupon)
+    .then(res => res.text())
+    .then(data => {
+      document.getElementById("result").innerText = data;
+    });
+}
+</script>
+
+</body>
+</html>
