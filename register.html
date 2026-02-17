@@ -2,16 +2,139 @@
 <html>
 <head>
   <title>Event Registration</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #003a8c, #0050b3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      width: 100%;
+      max-width: 420px;
+      border-radius: 18px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+      text-align: center;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 20px;
+      color: #003a8c;
+    }
+
+    .subtitle {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      transition: 0.2s;
+    }
+
+    input:focus {
+      border-color: #003a8c;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(0,58,140,0.1);
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      background: #003a8c;
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #002766;
+    }
+
+    button:disabled {
+      background: #999;
+      cursor: not-allowed;
+    }
+
+    .loading {
+      margin-top: 15px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .success-card {
+      background: #f0f7ff;
+      padding: 15px;
+      border-radius: 12px;
+      margin-top: 20px;
+      border: 1px solid #cce0ff;
+    }
+
+    .coupon {
+      font-size: 22px;
+      font-weight: 700;
+      color: #00a651;
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    .footer {
+      font-size: 11px;
+      margin-top: 15px;
+      color: #aaa;
+    }
+
+  </style>
 </head>
+
 <body>
 
-<h2>Register for Event</h2>
+<div class="card">
+  <h2>🎉 Register for Event</h2>
+  <div class="subtitle">Enter your details to receive your coupon</div>
 
-<input type="text" id="name" placeholder="Enter Name"><br><br>
-<input type="text" id="phone" placeholder="Enter Phone"><br><br>
-<button onclick="submitForm()">Submit</button>
+  <input type="text" id="name" placeholder="Full Name">
+  <input type="tel" id="phone" placeholder="Phone Number (10 digits)" maxlength="10">
 
-<p id="message"></p>
+  <button id="registerBtn" onclick="submitForm()">Register Now</button>
+
+  <div id="loading" class="loading"></div>
+  <div id="message"></div>
+
+  <div class="footer">
+    Powered by Event System
+  </div>
+</div>
 
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbxCLvDU2c_Xfq8EuMIlkYVzgn28MtgQbaCs-QOvfNhiiOq0IcuAfFELyAwB32D_2oP5lQ/exec";
@@ -21,24 +144,58 @@ function getEventId() {
   return params.get("event");
 }
 
-function generateCoupon(eventId) {
-  return eventId + "-" + Math.floor(1000 + Math.random() * 9000);
-}
-
 function submitForm() {
-  const name = document.getElementById("name").value;
-  const phone = document.getElementById("phone").value;
+
+  const name = document.getElementById("name").value.trim();
+  const phone = document.getElementById("phone").value.trim();
   const eventId = getEventId();
-  const coupon = generateCoupon(eventId);
+
+  if (!name || !phone) {
+    alert("Please fill all fields");
+    return;
+  }
+
+  if (phone.length !== 10 || isNaN(phone)) {
+    alert("Enter valid 10-digit phone number");
+    return;
+  }
+
+  document.getElementById("registerBtn").disabled = true;
+  document.getElementById("loading").innerText = "Processing...";
+  document.getElementById("message").innerHTML = "";
 
   fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({ eventId, name, phone, coupon })
+    body: JSON.stringify({ eventId, name, phone })
   })
   .then(res => res.json())
   .then(data => {
-    document.getElementById("message").innerHTML =
-      "Registration Successful! Your Coupon: <b>" + coupon + "</b>";
+
+    document.getElementById("loading").innerText = "";
+
+    if (data.result === "duplicate") {
+      document.getElementById("message").innerHTML = `
+        <div class="success-card">
+          ⚠ Already Registered
+          <div class="coupon">${data.coupon}</div>
+        </div>
+      `;
+    } else {
+      document.getElementById("message").innerHTML = `
+        <div class="success-card">
+          ✅ Registration Successful
+          <div class="coupon">${data.coupon}</div>
+        </div>
+      `;
+    }
+
+  })
+  .catch(() => {
+    document.getElementById("loading").innerText = "";
+    alert("Something went wrong. Try again.");
+  })
+  .finally(() => {
+    document.getElementById("registerBtn").disabled = false;
   });
 }
 </script>

@@ -1,26 +1,206 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Admin Panel</title>
+  <title>Event Admin Panel</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: #f5f7fa;
+    }
+
+    /* Header */
+    .header {
+      background: #003a8c;
+      color: white;
+      padding: 16px;
+      font-size: 18px;
+      font-weight: 600;
+      text-align: center;
+      position: sticky;
+      top: 0;
+    }
+
+    /* Container */
+    .container {
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+    }
+
+    /* Card */
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+    }
+
+    h2 {
+      margin-top: 0;
+      font-size: 18px;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 8px 0 16px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+
+    .primary-btn {
+      background: #003a8c;
+      color: white;
+    }
+
+    .primary-btn:hover {
+      background: #002766;
+    }
+
+    .secondary-btn {
+      background: #e6f0ff;
+      color: #003a8c;
+    }
+
+    .secondary-btn:hover {
+      background: #cce0ff;
+    }
+
+    .qr-section {
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    .qr-section img {
+      margin-top: 15px;
+      width: 220px;
+      height: 220px;
+    }
+
+    .link-box {
+      background: #f0f2f5;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      word-break: break-all;
+      margin-top: 10px;
+    }
+
+    /* Desktop Enhancement */
+    @media (min-width: 768px) {
+      .container {
+        margin-top: 40px;
+      }
+
+      .card {
+        padding: 30px;
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-<h2>Create Event</h2>
+<div class="header">
+  🎉 Event Admin Panel
+</div>
 
-<input type="text" id="eventId" placeholder="Enter Event ID">
-<button onclick="generateQR()">Generate QR</button>
+<div class="container">
+  <div class="card">
+    <h2>Create Event</h2>
 
-<div id="qr"></div>
+    <label>Event Name</label>
+    <input type="text" id="eventName" placeholder="Enter Event Name">
+
+    <label>Event ID</label>
+    <input type="text" id="eventId" placeholder="Auto generated or enter manually">
+
+    <button class="secondary-btn" onclick="autoGenerate()">
+      Auto Generate Event ID
+    </button>
+
+    <button class="primary-btn" onclick="generateQR()">
+      Generate QR Code
+    </button>
+
+    <div class="qr-section" id="qrSection" style="display:none;">
+      <h3>Scan QR for Registration</h3>
+      <div id="qr"></div>
+
+      <div class="link-box" id="eventLink"></div>
+
+      <button class="secondary-btn" onclick="copyLink()">
+        Copy Registration Link
+      </button>
+    </div>
+  </div>
+</div>
 
 <script>
+function autoGenerate() {
+  const name = document.getElementById("eventName").value.trim();
+  if (!name) {
+    alert("Enter Event Name first");
+    return;
+  }
+
+  const random = Math.floor(100 + Math.random() * 900);
+  const id = name.replace(/\s+/g, '').toUpperCase() + random;
+  document.getElementById("eventId").value = id;
+}
+
 function generateQR() {
-  const eventId = document.getElementById("eventId").value;
+  const eventId = document.getElementById("eventId").value.trim();
+
+  if (!eventId) {
+    alert("Enter Event ID");
+    return;
+  }
+
   const url = "https://decathlon-event.netlify.app/register.html?event=" + eventId;
 
+  document.getElementById("qrSection").style.display = "block";
+
   document.getElementById("qr").innerHTML =
-    "<img src='https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=" + url + "'>";
+    "<img src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" 
+    + encodeURIComponent(url) + "'>";
+
+  document.getElementById("eventLink").innerText = url;
+}
+
+function copyLink() {
+  const text = document.getElementById("eventLink").innerText;
+  navigator.clipboard.writeText(text);
+  alert("Link Copied!");
 }
 </script>
 
 </body>
+
 </html>
