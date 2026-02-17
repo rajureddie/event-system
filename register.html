@@ -150,6 +150,11 @@ function submitForm() {
   const phone = document.getElementById("phone").value.trim();
   const eventId = getEventId();
 
+  if (!eventId) {
+    alert("Invalid event link.");
+    return;
+  }
+
   if (!name || !phone) {
     alert("Please fill all fields");
     return;
@@ -166,9 +171,13 @@ function submitForm() {
 
   fetch(API_URL, {
     method: "POST",
-    body: JSON.stringify({ eventId, name, phone })
+    body: new URLSearchParams({
+      eventId: eventId,
+      name: name,
+      phone: phone
+    })
   })
-  .then(res => res.json())
+  .then(response => response.json())
   .then(data => {
 
     document.getElementById("loading").innerText = "";
@@ -180,25 +189,31 @@ function submitForm() {
           <div class="coupon">${data.coupon}</div>
         </div>
       `;
-    } else {
+    } 
+    else if (data.result === "success") {
       document.getElementById("message").innerHTML = `
         <div class="success-card">
           ✅ Registration Successful
           <div class="coupon">${data.coupon}</div>
         </div>
       `;
+    } 
+    else {
+      alert("Unexpected response from server.");
     }
 
   })
-  .catch(() => {
+  .catch(error => {
     document.getElementById("loading").innerText = "";
     alert("Something went wrong. Try again.");
+    console.error(error);
   })
   .finally(() => {
     document.getElementById("registerBtn").disabled = false;
   });
 }
 </script>
+
 
 </body>
 </html>
